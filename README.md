@@ -31,24 +31,13 @@ I used QLoRA (4-bit quantization) via the `peft` and `unsloth` libraries. This a
 - **Qualitative Testing:** In comparative tests, the fine-tuned model correctly identified the physiological relationship between Magnesium, PTH, and Calcium levels. The base Llama-3 model failed this specific clinical logic test.
 
 ##  Deployment & UI Integration
-The chatbot is deployed via a Gradio web interface optimized for clinical interaction.
+The chatbot is deployed via a Gradio web interface optimised for clinical interaction.
 - **Clinical Controls:** The interface includes adjustable Temperature and Top-P sliders for response precision.
 - **Interactive Examples:** Pre-loaded clinical scenarios like "Symptoms of high fever" guide the user.
 - **Safety Profile:** I integrated medical disclaimers to ensure responsible and ethical AI use.
 
 ##  Impact
-This project demonstrates the effectiveness of parameter-efficient fine-tuning for specialized healthcare tasks. By automating the first layer of triage, HealthDrive can scale healthcare delivery. This provides immediate support to communities with limited clinical access.
-
-### System Architecture
-```mermaid
-graph TD;
-    A[Patient / User] -->|Inputs Symptoms| B(Gradio Web Interface);
-    B --> C{Llama-3 Tokenizer};
-    C --> D[Base Model: Llama-3-8B-Instruct];
-    D -->|4-bit Quantization| E(QLoRA Adapters);
-    E --> F[Clinical Logic Inference];
-    F --> G(Decoded Output);
-    G -->|Clinical Response| A;
+This project demonstrates the effectiveness of parameter-efficient fine-tuning for specialised healthcare tasks. By automating the first layer of triage, HealthDrive can scale healthcare delivery. This provides immediate support to communities with limited clinical access.
 
 ## Repository Structure
 ```text
