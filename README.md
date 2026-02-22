@@ -52,17 +52,26 @@ This project demonstrates the effectiveness of parameter-efficient fine-tuning f
 
 ## Repository Structure
 HealthDrive-Triage-Chatbot/
+
 ├── Notebook/
 │   └── HealthDrive_Chatbot - LLM Fine-Tuning.ipynb
+
 ├── Data/
 │   └── medical_flashcards_dataset.csv
+
 ├── Images/
 │   └── (Contains 10 evaluation visualizations)
+
 ├── app.py
+
 ├── Dockerfile
+
 ├── requirements.txt
+
 ├── .gitignore
+
 ├── LICENSE
+
 └── README.md
 
 
