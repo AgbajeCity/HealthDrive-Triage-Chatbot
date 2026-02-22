@@ -1,9 +1,11 @@
-# HealthDrive Clinical Triage Chatbot
+# HealthDrive Medical Triage Chatbot & Assistant
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1ay1uTHwg_Ak1JAbZ71bdPYltOXmyilOF)
 
 ## Project Definition & Domain Alignment
-This project implements a domain-specific conversational assistant for healthcare triage. The tool supports the HealthDrive mission by providing accurate clinical guidance during initial patient inquiries. Automated triage manages patient flow and ensures critical cases receive priority in resource-limited settings.
+This project implements a domain-specific conversational assistant for healthcare triage. The tool, HealthDrive, supports the mission of providing accurate clinical guidance during initial patient inquiries. Automated triage manages patient flow and ensures critical cases receive priority in resource-limited settings.
+
+This repository contains the fine-tune model specialised for clinical triage and medical Q&A.
 
 **[Watch the 5-10 Minute Project Demo Here](Insert YouTube/Loom Link)**
 
@@ -24,18 +26,26 @@ I used QLoRA (4-bit quantisation) via the `peft` and `unsloth` libraries. This a
 ![Quantization Impact](Images/quantization_impact.png)
 
 ### Experiment Documentation
-| Run | Learning Rate | Batch Size | Optimizer | Peak GPU Memory | Result |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Run 1** | 2e-5 | 2 | adamw_torch | ~6.4 GB | High loss (1.8+). Convergence was slow. |
-| **Run 2** | 5e-5 | 4 | adamw_8bit | OOM Error | Batch size exceeded T4 GPU limits. |
-| **Run 3** | **2e-4** | **2 (Accum: 4)** | **adamw_8bit** | **~7.2 GB** | **Optimal. Loss dropped to 0.85.** |
+| Experiment | Learning Rate | Batch Size | Optimizer | Peak GPU Memory | Training Time | Result / Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| **Run 1** | 2e-5 | 2 | adamw_torch | ~6.4 GB | 4m 12s | Slow convergence. Loss remained high (1.8+). |
+| **Run 2** | 5e-5 | 4 | adamw_8bit | OOM Error | N/A | Batch size too large for T4 VRAM. |
+| **Run 3 (Final)** | **2e-4** | **1 (Grad Accum: 8)** | **adamw_8bit** | **~7.2 GB** | **~18m (1 Epoch)** | **Optimal. Loss dropped from 1.37 to 0.65. Balanced memory and convergence.** |
 
 ![Training Loss Curve](Images/training_loss.png)
 ![GPU Memory Usage](Images/memory_usage.png)
 
 ## Performance Metrics & Analysis
-* **Quantitative Improvement:** The fine-tuned model achieved a BLEU score of 17.77. This represents a 104% improvement over the 8.71 baseline.
+* **Quantitative Improvement:** The fine-tuned model achieved a BLEU score of 36.55. This represents a 319% improvement over the 8.71 baseline.
 * **Qualitative Testing:** In comparative tests, the fine-tuned model correctly identified the physiological relationship between Magnesium, PTH, and Calcium levels. The base Llama-3 model failed this specific clinical logic test.
+- **Final Training Loss:** 0.65
+- **Dataset:** 2,000 high-quality medical flashcards (MedAlpaca)
+- **Epochs:** 1 Full Epoch
+
+### Methodology
+- **Quantization:** 4-bit (bitsandbytes) for memory efficiency.
+- **Fine-Tuning:** QLoRA (Rank = 16) via Unsloth.
+- **Interface:** Gradio-powered web UI for real-time clinical inference.
 
 ![Performance Metrics](Images/performance_metrics.png)
 ![Capability Radar](Images/radar_capabilities.png)
