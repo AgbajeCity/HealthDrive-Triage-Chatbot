@@ -7,8 +7,6 @@ This project implements a domain-specific conversational assistant for healthcar
 
 This repository contains the fine-tune model specialised for clinical triage and medical Q&A.
 
-**[Watch the 5-10 Minute Project Demo Here](Insert YouTube/Loom Link)**
-
 ## Dataset Collection & Preprocessing
 The model was fine-tuned on the `medalpaca/medical_meadow_medical_flashcards` dataset from Hugging Face.
 
