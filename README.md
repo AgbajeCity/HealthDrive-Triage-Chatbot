@@ -3,7 +3,7 @@
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1ay1uTHwg_Ak1JAbZ71bdPYltOXmyilOF)
 
 ## Project Definition & Domain Alignment
-I am Ayomide, the co-founder of HealthDrive. This project implements a domain-specific conversational assistant for healthcare triage. The tool supports the HealthDrive mission by providing accurate clinical guidance during initial patient inquiries. Automated triage is essential in resource-limited settings to manage patient flow and ensure critical cases receive priority.
+This project implements a domain-specific conversational assistant for healthcare triage. The tool supports the HealthDrive mission by providing accurate clinical guidance during initial patient inquiries. Automated triage is essential in resource-limited settings to manage patient flow and ensure critical cases receive priority.
 
 ## 📊 Dataset Collection & Preprocessing
 The model was fine-tuned on the `medalpaca/medical_meadow_medical_flashcards` dataset from Hugging Face.
@@ -26,18 +26,29 @@ I used QLoRA (4-bit quantization) via the `peft` and `unsloth` libraries. This a
 
 
 
-## 📈 Performance Metrics & Analysis
+##  Performance Metrics & Analysis
 - **Quantitative Improvement:** The fine-tuned model achieved a BLEU score of 17.77. This represents a 104% improvement over the 8.71 baseline.
 - **Qualitative Testing:** In comparative tests, the fine-tuned model correctly identified the physiological relationship between Magnesium, PTH, and Calcium levels. The base Llama-3 model failed this specific clinical logic test.
 
-## 🚀 Deployment & UI Integration
+##  Deployment & UI Integration
 The chatbot is deployed via a Gradio web interface optimized for clinical interaction.
 - **Clinical Controls:** The interface includes adjustable Temperature and Top-P sliders for response precision.
 - **Interactive Examples:** Pre-loaded clinical scenarios like "Symptoms of high fever" guide the user.
 - **Safety Profile:** I integrated medical disclaimers to ensure responsible and ethical AI use.
 
-## 🌍 Impact
+##  Impact
 This project demonstrates the effectiveness of parameter-efficient fine-tuning for specialized healthcare tasks. By automating the first layer of triage, HealthDrive can scale healthcare delivery. This provides immediate support to communities with limited clinical access.
+
+### System Architecture
+```mermaid
+graph TD;
+    A[Patient / User] -->|Inputs Symptoms| B(Gradio Web Interface);
+    B --> C{Llama-3 Tokenizer};
+    C --> D[Base Model: Llama-3-8B-Instruct];
+    D -->|4-bit Quantization| E(QLoRA Adapters);
+    E --> F[Clinical Logic Inference];
+    F --> G(Decoded Output);
+    G -->|Clinical Response| A;
 
 ## Repository Structure
 ```text
