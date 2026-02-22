@@ -5,15 +5,6 @@
 ## Project Definition & Domain Alignment
 I am Ayomide, the co-founder of HealthDrive. This project implements a domain-specific conversational assistant for healthcare triage. The tool supports the HealthDrive mission by providing accurate clinical guidance during initial patient inquiries. Automated triage is essential in resource-limited settings to manage patient flow and ensure critical cases receive priority.
 
-## Repository Structure
-```text
-HealthDrive-Triage-Chatbot/
-├── Notebook/
-│   └── HealthDrive_Chatbot - LLM Fine-Tuning.ipynb       # Implementation & Fine-tuning pipeline
-├── Data/                                       # Dataset documentation
-├── requirements.txt                            # Python dependencies
-└── README.md                                   # Project documentation
-
 ## 📊 Dataset Collection & Preprocessing
 The model was fine-tuned on the `medalpaca/medical_meadow_medical_flashcards` dataset from Hugging Face.
 
@@ -47,3 +38,12 @@ The chatbot is deployed via a Gradio web interface optimized for clinical intera
 
 ## 🌍 Impact
 This project demonstrates the effectiveness of parameter-efficient fine-tuning for specialized healthcare tasks. By automating the first layer of triage, HealthDrive can scale healthcare delivery. This provides immediate support to communities with limited clinical access.
+
+## Repository Structure
+```text
+HealthDrive-Triage-Chatbot/
+├── Notebook/
+│   └── HealthDrive_Chatbot - LLM Fine-Tuning.ipynb       # Implementation & Fine-tuning pipeline
+├── Data/                                       # Dataset documentation
+├── requirements.txt                            # Python dependencies
+└── README.md                                   # Project documentation
