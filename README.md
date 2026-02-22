@@ -59,3 +59,20 @@ graph TD;
     E --> F[Clinical Logic Inference];
     F --> G(Decoded Output);
     G -->|Clinical Response| A;
+
+
+## Repository Structure
+```text
+HealthDrive-Triage-Chatbot/
+├── Notebook/
+│   └── HealthDrive_Chatbot - LLM Fine-Tuning.ipynb
+├── Data/
+│   └── medical_flashcards_dataset.csv
+├── Images/
+│   └── (Contains 10 evaluation visualizations)
+├── app.py
+├── Dockerfile
+├── requirements.txt
+├── .gitignore
+├── LICENSE
+└── README.md
