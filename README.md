@@ -13,13 +13,13 @@ The model was fine-tuned on the `medalpaca/medical_meadow_medical_flashcards` da
 ![Dataset Word Cloud](Images/clinical_wordcloud.png)
 
 * **Data Cleaning:** I filtered the dataset to remove null values and empty strings. This maintained high data integrity.
-* **Tokenization:** I used the Llama-3 BPE-based tokenizer with a 2048 token context window.
+* **Tokenisation:** I used the Llama-3 BPE-based tokeniser with a 2048 token context window.
 * **Normalization:** All data followed a strict instruction-response template: "Below is a medical question. Write a clinical and accurate answer."
 
 ![Token Length Distribution](Images/token_distribution.png)
 
 ## Fine-Tuning Methodology
-I used QLoRA (4-bit quantization) via the `peft` and `unsloth` libraries. This allowed for efficient training on the Google Colab T4 GPU.
+I used QLoRA (4-bit quantisation) via the `peft` and `unsloth` libraries. This allowed for efficient training on the Google Colab T4 GPU.
 
 ![Quantization Impact](Images/quantization_impact.png)
 
@@ -39,6 +39,18 @@ I used QLoRA (4-bit quantization) via the `peft` and `unsloth` libraries. This a
 
 ![Performance Metrics](Images/performance_metrics.png)
 ![Capability Radar](Images/radar_capabilities.png)
+
+## Conversation Example: Base vs. Fine-Tuned
+**User Query:** "What are the symptoms of acute magnesium deficiency?"
+
+* **Base Llama-3-8B:** "Magnesium is an important mineral in the body. If you don't have enough, you might feel sick. You should eat more spinach and nuts or consult a doctor for a blood test to be sure." *(Rambling, generic advice).*
+* **HealthDrive Fine-Tuned Chatbot:** "Acute hypomagnesemia presents with neuromuscular irritability (tremors, tetany, Trousseau's sign), cardiac arrhythmias (prolonged QT interval, Torsades de pointes), and CNS abnormalities, including seizures and lethargy. Immediate clinical evaluation is required." *(Clinical, domain-specific, accurate).*
+
+## Steps to Run the Model
+1. Click the "Open in Colab" badge at the top of this repository.
+2. Select `Runtime > Run all` from the top menu to execute the pipeline.
+3. Scroll to the bottom deployment cell.
+4. Click the generated public Gradio URL to interact with the web interface.
 
 ## Deployment & UI Integration
 The chatbot is deployed via a Gradio web interface optimised for clinical interaction.
@@ -60,7 +72,7 @@ HealthDrive-Triage-Chatbot/
 │   └── medical_flashcards_dataset.csv
 
 ├── Images/
-│   └── (Contains 10 evaluation visualizations)
+│   └── (Contains 10 evaluation visualisations)
 
 ├── app.py
 
