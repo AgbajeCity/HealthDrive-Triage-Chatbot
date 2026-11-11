@@ -1,107 +1,121 @@
-# HealthDrive Medical Triage Chatbot & Assistant
+# HealthDrive Medical Triage Chatbot
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1ay1uTHwg_Ak1JAbZ71bdPYltOXmyilOF)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/174R2oJaXsPs3xugptWf8XDu8X6A-kCC6)
+[![Model on Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Model-healthdrive--triage--llama3--8b--lora-yellow)](https://huggingface.co/AgbajeCity/healthdrive-triage-llama3-8b-lora)
 
-## Project Definition & Domain Alignment
-This project implements a domain-specific conversational assistant for healthcare triage. The tool, HealthDrive, supports the mission of providing accurate clinical guidance during initial patient inquiries. Automated triage manages patient flow and ensures critical cases receive priority in resource-limited settings.
+This repository holds a medical question-answering assistant built for HealthDrive, a rural health service. It is a Llama-3-8B model fine-tuned with QLoRA on medical flashcards. The fine-tuned adapter, its training log and its evaluation files are published on Hugging Face at [AgbajeCity/healthdrive-triage-llama3-8b-lora](https://huggingface.co/AgbajeCity/healthdrive-triage-llama3-8b-lora).
 
-This repository contains the fine-tune model specialised for clinical triage and medical Q&A.
+The model is a research prototype for education. It does not diagnose, prescribe or replace a clinician.
 
-## Dataset Collection & Preprocessing
-The model was fine-tuned on the `medalpaca/medical_meadow_medical_flashcards` dataset from Hugging Face.
+## Results on unseen questions
 
-![Dataset Word Cloud](Images/clinical_wordcloud.png)
+I scored the base model and the fine-tuned model on the same 200 held-out questions. None of them appear in the training set. Both models used greedy decoding with up to 64 new tokens.
 
-* **Data Cleaning:** I filtered the dataset to remove null values and empty strings. This maintained high data integrity.
-* **Tokenisation:** I used the Llama-3 BPE-based tokeniser with a 2048 token context window.
-* **Normalization:** All data followed a strict instruction-response template: "Below is a medical question. Write a clinical and accurate answer."
+| Metric | Base Llama-3-8B (4-bit) | Fine-tuned (QLoRA) |
+| --- | --- | --- |
+| BLEU (0 to 100) | 16.30 | **40.59** |
+| ROUGE-1 (0 to 1) | 0.446 | **0.681** |
+| ROUGE-L (0 to 1) | 0.394 | **0.626** |
 
-![Token Length Distribution](Images/token_distribution.png)
+BLEU rose about 2.5 times. ROUGE-L, which rewards matching the reference answer's wording in order, rose from 0.394 to 0.626. These metrics measure overlap with the reference answers. They do not measure clinical correctness, so I also read the answers one by one (see below).
 
-## Fine-Tuning Methodology
-I used QLoRA (4-bit quantisation) via the `peft` and `unsloth` libraries. This allowed for efficient training on the Google Colab T4 GPU.
+![Held-out scores](https://huggingface.co/AgbajeCity/healthdrive-triage-llama3-8b-lora/resolve/main/evaluation/heldout_scores.png)
 
-![Quantization Impact](Images/quantization_impact.png)
+All 200 questions, reference answers and both models' answers are in [heldout_predictions.csv](https://huggingface.co/AgbajeCity/healthdrive-triage-llama3-8b-lora/blob/main/evaluation/heldout_predictions.csv). The raw numbers are in [metrics.json](https://huggingface.co/AgbajeCity/healthdrive-triage-llama3-8b-lora/blob/main/evaluation/metrics.json).
 
-### Experiment Documentation
-| Experiment | Learning Rate | Batch Size | Optimizer | Peak GPU Memory | Training Time | Result / Notes |
-| --- | --- | --- | --- | --- | --- | --- |
-| **Run 1** | 2e-5 | 2 | adamw_torch | ~6.4 GB | 4m 12s | Slow convergence. Loss remained high (1.8+). |
-| **Run 2** | 5e-5 | 4 | adamw_8bit | OOM Error | N/A | Batch size too large for T4 VRAM. |
-| **Run 3 (Final)** | **2e-4** | **1 (Grad Accum: 8)** | **adamw_8bit** | **~7.2 GB** | **~18m (1 Epoch)** | **Optimal. Loss dropped from 1.37 to 0.65. Balanced memory and convergence.** |
+## Data
 
-![Training Loss Curve](Images/training_loss.png)
-![GPU Memory Usage](Images/memory_usage.png)
+The model was trained on [`medalpaca/medical_meadow_medical_flashcards`](https://huggingface.co/datasets/medalpaca/medical_meadow_medical_flashcards). I removed 400 rows with empty questions or answers, leaving 33,547. Of those, rows 0 to 1,999 were used for training and rows 2,000 to 2,199 were held back as the test set. As a leakage check, the notebook counts how many test questions also appear in the training set. The count is 0.
 
-## Performance Metrics & Analysis
-* **Quantitative Improvement:** The fine-tuned model achieved a BLEU score of 36.55. This represents a 319% improvement over the 8.71 baseline.
-* **Qualitative Testing:** In comparative tests, the fine-tuned model correctly identified the physiological relationship between Magnesium, PTH, and Calcium levels. The base Llama-3 model failed this specific clinical logic test.
-- **Final Training Loss:** 0.65
-- **Dataset:** 2,000 high-quality medical flashcards (MedAlpaca)
-- **Epochs:** 1 Full Epoch
+Every example uses one template, and `app.py` uses the same one:
 
-### Methodology
-- **Quantization:** 4-bit (bitsandbytes) for memory efficiency.
-- **Fine-Tuning:** QLoRA (Rank = 16) via Unsloth.
-- **Interface:** Gradio-powered web UI for real-time clinical inference.
+```
+Below is a medical question. Write a clinical and accurate answer.
 
-![Performance Metrics](Images/performance_metrics.png)
-![Capability Radar](Images/radar_capabilities.png)
+### Question:
+{question}
 
-## Conversation Example: Base vs. Fine-Tuned
-**User Query:** "What are the symptoms of acute magnesium deficiency?"
+### Answer:
+{answer}
+```
 
-* **Base Llama-3-8B:** "Magnesium is an important mineral in the body. If you don't have enough, you might feel sick. You should eat more spinach and nuts or consult a doctor for a blood test to be sure." *(Rambling, generic advice).*
-* **HealthDrive Fine-Tuned Chatbot:** "Acute hypomagnesemia presents with neuromuscular irritability (tremors, tetany, Trousseau's sign), cardiac arrhythmias (prolonged QT interval, Torsades de pointes), and CNS abnormalities, including seizures and lethargy. Immediate clinical evaluation is required." *(Clinical, domain-specific, accurate).*
+## Training
 
-## Steps to Run the Model
-1. Click the "Open in Colab" badge at the top of this repository.
-2. Select `Runtime > Run all` from the top menu to execute the pipeline.
-3. Scroll to the bottom deployment cell.
-4. Click the generated public Gradio URL to interact with the web interface.
+| Setting | Value |
+| --- | --- |
+| Base model | `unsloth/llama-3-8b-bnb-4bit` (4-bit, bitsandbytes) |
+| Method | QLoRA via Unsloth and TRL `SFTTrainer` |
+| LoRA rank and alpha | 16 and 16, on q, k, v, o, gate, up and down projections |
+| Learning rate | 2e-4, linear schedule |
+| Batch | 1 per device, gradient accumulation 8 (effective 8) |
+| Optimiser | adamw_8bit, weight decay 0.01 |
+| Data and steps | 2,000 examples, 1 epoch, 250 steps |
+| Hardware | Google Colab T4 GPU |
+| Loss | mean 0.75 over the run; final logged value 0.65 |
 
-## Deployment & UI Integration
-The chatbot is deployed via a Gradio web interface optimised for clinical interaction.
-* **Clinical Controls:** The interface includes adjustable Temperature and Top-P sliders for response precision.
-* **Interactive Examples:** Pre-loaded clinical scenarios like "Symptoms of high fever" guide the user.
-* **Safety Profile:** I integrated medical disclaimers to ensure responsible and ethical AI use.
+![Training loss](https://huggingface.co/AgbajeCity/healthdrive-triage-llama3-8b-lora/resolve/main/evaluation/training_loss.png)
 
-## Impact
-This project demonstrates the effectiveness of parameter-efficient fine-tuning for specialised healthcare tasks. By automating the first layer of triage, HealthDrive can scale healthcare delivery. This provides immediate support to communities with limited clinical access.
+## Examples from the held-out set
 
-### Repository Structure
+These are real outputs copied from `heldout_predictions.csv`.
 
-HealthDrive-Triage-Chatbot/
+**Question:** What is Amiodarone, and what are the potential thyroid-related side effects of taking it?
 
-├── Notebook/
-│   └── HealthDrive_Chatbot - LLM Fine-Tuning.ipynb
+* Reference: Amiodarone is a class III antiarrhythmic medication that can cause both hyper- and hypothyroidism as potential side effects.
+* Base model: "Amiodarone is a medication used to treat abnormal heart rhythms. It is a medication that is used to treat abnormal heart rhythms..." (repeats itself and never names the thyroid effects)
+* Fine-tuned: "Amiodarone is an antiarrhythmic medication that can cause thyroid-related side effects such as hyperthyroidism or hypothyroidism."
 
-├── Data/
-│   └── medical_flashcards_dataset.csv
+**Question:** What combination of medications is used for the treatment of cryptococcal meningitis?
 
-├── Images/
-│   └── (Contains 10 evaluation visualisations)
+* Reference: Amphotericin B and Flucytosine.
+* Base model: "amphotericin B and flucytosine." (correct)
+* Fine-tuned: "a combination of fluconazole and flucytosine." (wrong drug)
 
-├── app.py
+The second example shows why the scores alone are not enough. The fine-tuned model writes in the style of the reference answers far more often, but it can still state a wrong fact with confidence.
 
-├── Dockerfile
+## Limitations
 
-├── requirements.txt
+* English only, and trained on short flashcard answers, not on real patient conversations or triage records.
+* BLEU and ROUGE reward similar wording, not safe or correct advice.
+* The test set comes from the same dataset as the training set, so these scores say little about questions phrased the way patients phrase them.
+* Not reviewed by clinicians. Do not use it for patient care.
 
-├── .gitignore
+## Run it
 
-├── LICENSE
+**Colab:** open the notebook from the badge above, choose a T4 GPU, add your own Hugging Face token as a Colab secret named `HF_TOKEN`, then run all cells. The notebook retrains the adapter and repeats the evaluation.
 
-└── README.md
+**Local or server with a GPU:**
 
-### System Architecture
+```bash
+pip install -r requirements.txt
+python app.py
+```
+
+`app.py` downloads the adapter from Hugging Face and opens a Gradio interface. To point it at a different adapter, set `HEALTHDRIVE_ADAPTER`.
+
+## Architecture
+
 ```mermaid
 graph TD;
-    A[Patient / User] -->|Inputs Symptoms| B(Gradio Web Interface);
-    B --> C{Llama-3 Tokenizer};
-    C --> D[Base Model: Llama-3-8B, 4-bit];
-    D -->|4-bit Quantization| E(QLoRA Adapters);
-    E --> F[Clinical Logic Inference];
-    F --> G(Decoded Output);
-    G -->|Clinical Response| A;
+    A[User question] --> B(Gradio interface);
+    B --> C[Training prompt template];
+    C --> D[Llama-3-8B base, 4-bit];
+    D --> E(HealthDrive QLoRA adapter from Hugging Face);
+    E --> F[Generated answer, new tokens only];
+    F --> G(Answer shown with disclaimer);
+```
 
+## Repository structure
+
+```
+HealthDrive-Triage-Chatbot/
+├── Notebook/      training and evaluation notebook
+├── Data/          medical_flashcards_dataset.csv
+├── app.py         Gradio app that loads the published adapter
+├── Dockerfile
+├── requirements.txt
+├── LICENSE        MIT
+└── README.md
+```
+
+The code is MIT licensed. Use of the base model is subject to the Meta Llama 3 Community License.
