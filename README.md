@@ -1,6 +1,6 @@
 # HealthDrive Medical Triage Chatbot
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/174R2oJaXsPs3xugptWf8XDu8X6A-kCC6)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/AgbajeCity/HealthDrive-Triage-Chatbot/blob/main/Notebook/HealthDrive_Retrain_HeldOut_Eval.ipynb)
 [![Model on Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Model-healthdrive--triage--llama3--8b--lora-yellow)](https://huggingface.co/AgbajeCity/healthdrive-triage-llama3-8b-lora)
 
 This repository holds a medical question-answering assistant built for HealthDrive, a rural health service. It is a Llama-3-8B model fine-tuned with QLoRA on medical flashcards. The fine-tuned adapter, its training log and its evaluation files are published on Hugging Face at [AgbajeCity/healthdrive-triage-llama3-8b-lora](https://huggingface.co/AgbajeCity/healthdrive-triage-llama3-8b-lora).
@@ -82,7 +82,7 @@ The second example shows why the scores alone are not enough. The fine-tuned mod
 
 ## Run it
 
-**Colab:** open the notebook from the badge above, choose a T4 GPU, add your own Hugging Face token as a Colab secret named `HF_TOKEN`, then run all cells. The notebook retrains the adapter and repeats the evaluation.
+**Colab:** open [`Notebook/HealthDrive_Retrain_HeldOut_Eval.ipynb`](Notebook/HealthDrive_Retrain_HeldOut_Eval.ipynb) from the badge above, choose a T4 GPU, add your own Hugging Face token as a Colab secret named `HF_TOKEN`, then run all cells. The notebook retrains the adapter and repeats the evaluation.
 
 **Local or server with a GPU:**
 
@@ -109,7 +109,9 @@ graph TD;
 
 ```
 HealthDrive-Triage-Chatbot/
-├── Notebook/      training and evaluation notebook
+├── Notebook/
+│   ├── HealthDrive_Retrain_HeldOut_Eval.ipynb   retraining and held-out evaluation (produced the published results)
+│   └── HealthDrive_Chatbot_LLM.ipynb            first experiment, kept for reference
 ├── Data/          medical_flashcards_dataset.csv
 ├── app.py         Gradio app that loads the published adapter
 ├── Dockerfile
