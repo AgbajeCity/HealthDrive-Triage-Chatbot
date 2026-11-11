@@ -99,7 +99,7 @@ HealthDrive-Triage-Chatbot/
 graph TD;
     A[Patient / User] -->|Inputs Symptoms| B(Gradio Web Interface);
     B --> C{Llama-3 Tokenizer};
-    C --> D[Base Model: Llama-3-8B-Instruct];
+    C --> D[Base Model: Llama-3-8B, 4-bit];
     D -->|4-bit Quantization| E(QLoRA Adapters);
     E --> F[Clinical Logic Inference];
     F --> G(Decoded Output);
